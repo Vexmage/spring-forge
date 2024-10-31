@@ -23,8 +23,9 @@
     padding: 1rem;
 }
 
-.mascot {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+.mascot img {
+    width: 100px; /* Adjust size as needed */
+    height: auto;
+    border-radius: 50%; /* Example styling to make it round */
 }
+
