@@ -1,0 +1,21 @@
+/* src/App.css */
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+.navbar, .sidebar, .main, .mascot {
+    border: 1px solid #333; /* Temporary border to make sure components render */
+}
+
+.main {
+    flex-grow: 1;
+    padding: 1rem;
+    background-color: #f0f0f0; /* Temporary background for visibility */
+}
+
+.mascot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
