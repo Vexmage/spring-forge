@@ -27,7 +27,7 @@ function App() {
                           <Route path="/profile" element={<ProfilePage />} />
                       </Routes>
                   </div>
-                  <Mascot />  {/* Add Sparky here, outside the main content container */}
+                  
               </div>
           </div>
       </Router>

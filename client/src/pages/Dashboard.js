@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { TaskContext } from '../context/TaskContext';
 import { Link } from 'react-router-dom';
 import { Card, Button, Row, Col } from 'react-bootstrap';
+import Mascot from '../components/Mascot'; // Import Sparky's component
 
 function Dashboard() {
     const { tasks, loading } = useContext(TaskContext);
@@ -31,6 +32,7 @@ function Dashboard() {
                             </Card.Text>
                         </Card.Body>
                     </Card>
+                    <Mascot /> {/* Position Sparky directly below the Message card */}
                 </Col>
                 <Col md={6}>
                     <Card>
@@ -71,6 +73,9 @@ function Dashboard() {
                                     60%
                                 </div>
                             </div>
+                            <Link to="/sprints">
+                                <Button variant="primary" className="mt-3">View All Sprints</Button>
+                            </Link>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -83,6 +88,9 @@ function Dashboard() {
                                 <li className="list-group-item">Beta Release - Target: Feb 15, 2024</li>
                                 <li className="list-group-item">Launch - Target: Mar 1, 2024</li>
                             </ul>
+                            <Link to="/milestones">
+                                <Button variant="primary" className="mt-3">View All Milestones</Button>
+                            </Link>
                         </Card.Body>
                     </Card>
                 </Col>

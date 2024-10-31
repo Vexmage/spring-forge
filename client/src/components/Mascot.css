@@ -1,20 +1,13 @@
 /* src/components/Mascot.css */
-
 .mascot {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 100px;         /* Adjust the size as desired */
-    text-align: center;
-    z-index: 1000;
+    display: flex;
+    align-items: center;
+    margin-top: 20px; /* Adds space below the Message from Sparky card */
 }
 
 .mascot img {
-    width: 100px;          /* Adjust image size if necessary */
+    width: 75px; /* Adjust size if necessary */
     height: auto;
-}
 
-.mascot p {
-    font-size: 0.9rem;
-    color: #333;
+    margin-right: 10px; /* Space between image and text */
 }
