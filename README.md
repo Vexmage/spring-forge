@@ -6,7 +6,6 @@
 
 - **client/**: React frontend, with all assets, components, and pages.
 - **server/**: Node.js and Express backend, API, and database configuration.
-- **assets/**: Holds static assets like Sparky's image.
 
 ## Getting Started
 
