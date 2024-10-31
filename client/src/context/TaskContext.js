@@ -58,7 +58,8 @@ export const TaskProvider = ({ children }) => {
 
     // Add a new task (local only, not persisted)
     const addTask = (newTask) => {
-        setTasks((prevTasks) => [...prevTasks, { id: tasks.length + 1, ...newTask }]);
+        const taskWithId = { id: tasks.length + 1, ...newTask };
+        setTasks((prevTasks) => [...prevTasks, taskWithId]);
     };
 
     // Update a task’s status
