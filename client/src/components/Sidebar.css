@@ -1,0 +1,24 @@
+/* src/components/Sidebar.css */
+.sidebar {
+    background-color: #f8f9fa;
+    height: 100vh;
+    border-right: 1px solid #ddd;
+    width: 220px;
+}
+
+.sidebar-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.sidebar .list-group-item {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.sidebar .list-group-item:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}

@@ -2,6 +2,7 @@
 import React, { useContext } from 'react';
 import { MascotContext } from '../context/MascotContext';
 import sparkyImage from '../assets/sparky.png'; // Import the image
+import './Mascot.css';
 
 function Mascot() {
     const { message } = useContext(MascotContext);
