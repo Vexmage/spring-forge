@@ -1,14 +1,28 @@
 // src/pages/TasksPage.js
-import React from 'react';
+import React, { useContext } from 'react';
+import { TaskContext } from '../context/TaskContext';
 import TaskCard from '../components/TaskCard';
 
 function TasksPage() {
+    const { tasks, loading } = useContext(TaskContext);
+
     return (
         <div>
             <h2>Tasks</h2>
-            <p>Manage and assign tasks to your team here.</p>
-            <TaskCard title="Sample Task" description="Complete the UI design for the homepage." assignee="Jane Doe" status="To Do" priority="High" />
-            <TaskCard title="Backend Setup" description="Initialize the database and configure API endpoints." assignee="John Smith" status="In Progress" priority="Medium" />
+            {loading ? (
+                <p>Loading tasks...</p>
+            ) : (
+                tasks.map((task) => (
+                    <TaskCard
+                        key={task.id}
+                        title={task.title}
+                        description={task.description}
+                        assignee={task.assignee}
+                        status={task.status}
+                        priority={task.priority}
+                    />
+                ))
+            )}
         </div>
     );
 }

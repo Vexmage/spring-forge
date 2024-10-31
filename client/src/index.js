@@ -2,11 +2,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
+import { TaskProvider } from './context/TaskContext';
 import { MascotProvider } from './context/MascotContext';
 
 ReactDOM.render(
-    <MascotProvider>
-        <App />
-    </MascotProvider>,
+    <TaskProvider>
+        <MascotProvider>
+            <App />
+        </MascotProvider>
+    </TaskProvider>,
     document.getElementById('root')
 );
