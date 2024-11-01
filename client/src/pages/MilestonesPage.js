@@ -1,31 +1,45 @@
 // src/pages/MilestonesPage.js
 import React, { useContext, useState } from 'react';
 import { MilestoneContext } from '../context/MilestoneContext';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 
 function MilestonesPage() {
-    const { milestones, addMilestone } = useContext(MilestoneContext);
-    const [newMilestone, setNewMilestone] = useState({
-        title: '',
-        goal: '',
-        status: 'Planned',
-        startDate: '',
-        targetDate: ''
-    });
+    const { milestones, addMilestone, editMilestone, deleteMilestone } = useContext(MilestoneContext);
+    const [newMilestone, setNewMilestone] = useState({ title: '', description: '', status: 'Not Started', targetDate: '' });
+    const [selectedMilestone, setSelectedMilestone] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-    // Handle form input changes
+    // Handle input changes for new milestones
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNewMilestone((prevMilestone) => ({ ...prevMilestone, [name]: value }));
     };
 
-    // Handle form submission
+    // Handle form submission for new milestones
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (newMilestone.title.trim() && newMilestone.goal.trim()) {
+        if (newMilestone.title.trim()) {
             addMilestone(newMilestone);
-            setNewMilestone({ title: '', goal: '', status: 'Planned', startDate: '', targetDate: '' });
+            setNewMilestone({ title: '', description: '', status: 'Not Started', targetDate: '' });
         }
+    };
+
+    // Open edit modal and set the selected milestone
+    const handleEditClick = (milestone) => {
+        setSelectedMilestone(milestone);
+        setShowModal(true);
+    };
+
+    // Handle changes in the edit modal
+    const handleModalChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedMilestone({ ...selectedMilestone, [name]: value });
+    };
+
+    // Save edited milestone changes
+    const handleSaveChanges = () => {
+        editMilestone(selectedMilestone);
+        setShowModal(false);
     };
 
     return (
@@ -51,45 +65,6 @@ function MilestonesPage() {
                                 </Form.Group>
                             </Col>
                             <Col md={6}>
-                                <Form.Group controlId="milestoneGoal">
-                                    <Form.Label>Goal</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="goal"
-                                        value={newMilestone.goal}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row className="mb-3">
-                            <Col md={4}>
-                                <Form.Group controlId="milestoneStatus">
-                                    <Form.Label>Status</Form.Label>
-                                    <Form.Select
-                                        name="status"
-                                        value={newMilestone.status}
-                                        onChange={handleChange}
-                                    >
-                                        <option>Planned</option>
-                                        <option>In Progress</option>
-                                        <option>Completed</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group controlId="milestoneStartDate">
-                                    <Form.Label>Start Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="startDate"
-                                        value={newMilestone.startDate}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
                                 <Form.Group controlId="milestoneTargetDate">
                                     <Form.Label>Target Date</Form.Label>
                                     <Form.Control
@@ -101,9 +76,29 @@ function MilestonesPage() {
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Button variant="primary" type="submit">
-                            Add Milestone
-                        </Button>
+                        <Form.Group controlId="milestoneDescription" className="mb-3">
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={2}
+                                name="description"
+                                value={newMilestone.description}
+                                onChange={handleChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="milestoneStatus" className="mb-3">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Select
+                                name="status"
+                                value={newMilestone.status}
+                                onChange={handleChange}
+                            >
+                                <option>Not Started</option>
+                                <option>In Progress</option>
+                                <option>Completed</option>
+                            </Form.Select>
+                        </Form.Group>
+                        <Button variant="primary" type="submit">Add Milestone</Button>
                     </Form>
                 </Card.Body>
             </Card>
@@ -115,15 +110,72 @@ function MilestonesPage() {
                         <Card>
                             <Card.Body>
                                 <Card.Title>{milestone.title}</Card.Title>
-                                <Card.Text>{milestone.goal}</Card.Text>
-                                <p><strong>Status:</strong> {milestone.status}</p>
-                                <p><strong>Start Date:</strong> {milestone.startDate}</p>
                                 <p><strong>Target Date:</strong> {milestone.targetDate}</p>
+                                <p><strong>Status:</strong> {milestone.status}</p>
+                                <p>{milestone.description}</p>
+                                <Button variant="outline-primary" onClick={() => handleEditClick(milestone)} className="me-2">Edit</Button>
+                                <Button variant="outline-danger" onClick={() => deleteMilestone(milestone.id)}>Delete</Button>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
+
+            {/* Edit Milestone Modal */}
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Milestone</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedMilestone && (
+                        <Form>
+                            <Form.Group controlId="editMilestoneTitle">
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="title"
+                                    value={selectedMilestone.title}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="editMilestoneDescription" className="mt-2">
+                                <Form.Label>Description</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    name="description"
+                                    value={selectedMilestone.description}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="editMilestoneStatus" className="mt-2">
+                                <Form.Label>Status</Form.Label>
+                                <Form.Select
+                                    name="status"
+                                    value={selectedMilestone.status}
+                                    onChange={handleModalChange}
+                                >
+                                    <option>Not Started</option>
+                                    <option>In Progress</option>
+                                    <option>Completed</option>
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group controlId="editMilestoneTargetDate" className="mt-2">
+                                <Form.Label>Target Date</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    name="targetDate"
+                                    value={selectedMilestone.targetDate}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                        </Form>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleSaveChanges}>Save Changes</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
