@@ -1,11 +1,13 @@
 // src/pages/TasksPage.js
 import React, { useContext, useState } from 'react';
 import { TaskContext } from '../context/TaskContext';
+import { SprintContext } from '../context/SprintContext';
 import TaskCard from '../components/TaskCard';
 import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 
 function TasksPage() {
-    const { tasks, loading, addTask, editTask, deleteTask, changeTaskStatus } = useContext(TaskContext);
+    const { tasks, loading, addTask, editTask, deleteTask, changeTaskStatus, assignTaskToSprint } = useContext(TaskContext);
+    const { sprints } = useContext(SprintContext);  // Fetch available sprints
     const [newTask, setNewTask] = useState({
         title: '',
         description: '',
@@ -17,13 +19,11 @@ function TasksPage() {
     const [selectedTask, setSelectedTask] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
-    // Handle input changes for new tasks
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNewTask((prevTask) => ({ ...prevTask, [name]: value }));
     };
 
-    // Handle form submission for new tasks
     const handleSubmit = (e) => {
         e.preventDefault();
         if (newTask.title.trim()) {
@@ -32,27 +32,19 @@ function TasksPage() {
         }
     };
 
-    // Open edit modal and set the selected task
     const handleEditClick = (task) => {
         setSelectedTask(task);
         setShowModal(true);
     };
 
-    // Handle changes in the edit modal
     const handleModalChange = (e) => {
         const { name, value } = e.target;
         setSelectedTask({ ...selectedTask, [name]: value });
     };
 
-    // Save edited task changes
     const handleSaveChanges = () => {
         editTask(selectedTask);
         setShowModal(false);
-    };
-
-    // Change task status
-    const handleStatusChange = (taskId, newStatus) => {
-        changeTaskStatus(taskId, newStatus);
     };
 
     return (
@@ -129,9 +121,7 @@ function TasksPage() {
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Button variant="primary" type="submit">
-                            Add Task
-                        </Button>
+                        <Button variant="primary" type="submit">Add Task</Button>
                     </Form>
                 </Card.Body>
             </Card>
@@ -147,7 +137,9 @@ function TasksPage() {
                                 {...task}
                                 onEdit={() => handleEditClick(task)}
                                 onDelete={() => deleteTask(task.id)}
-                                onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
+                                onStatusChange={(newStatus) => changeTaskStatus(task.id, newStatus)}
+                                onAssignSprint={(sprintId) => assignTaskToSprint(task.id, sprintId)}  // Assign to sprint
+                                sprints={sprints}  // Pass sprints to TaskCard
                             />
                         </Col>
                     ))}
@@ -193,12 +185,8 @@ function TasksPage() {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="primary" onClick={handleSaveChanges}>
-                        Save Changes
-                    </Button>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleSaveChanges}>Save Changes</Button>
                 </Modal.Footer>
             </Modal>
         </Container>

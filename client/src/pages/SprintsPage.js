@@ -1,31 +1,47 @@
 // src/pages/SprintsPage.js
 import React, { useContext, useState } from 'react';
 import { SprintContext } from '../context/SprintContext';
-import { Container, Row, Col, Card, Form, Button, ProgressBar } from 'react-bootstrap';
+import { TaskContext } from '../context/TaskContext';
+import { Container, Row, Col, Card, Button, Modal, Form, ProgressBar } from 'react-bootstrap';
 
 function SprintsPage() {
-    const { sprints, addSprint } = useContext(SprintContext);
-    const [newSprint, setNewSprint] = useState({
-        name: '',
-        goal: '',
-        startDate: '',
-        endDate: '',
-        progress: 0,
-    });
+    const { sprints, addSprint, editSprint, deleteSprint } = useContext(SprintContext);
+    const { tasks } = useContext(TaskContext);
+    const [newSprint, setNewSprint] = useState({ name: '', goal: '', startDate: '', endDate: '', status: 'Not Started', progress: 0 });
+    const [selectedSprint, setSelectedSprint] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-    // Handle input changes
-    const handleChange = (e) => {
+    // Calculate the progress of each sprint based on task completion
+    const calculateProgress = (sprintId) => {
+        const sprintTasks = tasks.filter(task => task.sprintId === sprintId);
+        const completedTasks = sprintTasks.filter(task => task.status === "Completed").length;
+        return sprintTasks.length ? (completedTasks / sprintTasks.length) * 100 : 0;
+    };
+
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewSprint((prevSprint) => ({ ...prevSprint, [name]: value }));
     };
 
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (newSprint.name.trim() && newSprint.goal.trim()) {
-            addSprint(newSprint);
-            setNewSprint({ name: '', goal: '', startDate: '', endDate: '', progress: 0 });
-        }
+        addSprint(newSprint);
+        setNewSprint({ name: '', goal: '', startDate: '', endDate: '', status: 'Not Started', progress: 0 });
+    };
+
+    const handleEditClick = (sprint) => {
+        setSelectedSprint(sprint);
+        setShowModal(true);
+    };
+
+    const handleModalChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedSprint({ ...selectedSprint, [name]: value });
+    };
+
+    const handleSaveChanges = () => {
+        editSprint(selectedSprint);
+        setShowModal(false);
     };
 
     return (
@@ -35,7 +51,7 @@ function SprintsPage() {
             {/* Sprint Creation Form */}
             <Card className="mb-4">
                 <Card.Body>
-                    <h5>Add a New Sprint</h5>
+                    <h5>Create a New Sprint</h5>
                     <Form onSubmit={handleSubmit}>
                         <Row className="mb-3">
                             <Col md={6}>
@@ -45,7 +61,7 @@ function SprintsPage() {
                                         type="text"
                                         name="name"
                                         value={newSprint.name}
-                                        onChange={handleChange}
+                                        onChange={handleInputChange}
                                         required
                                     />
                                 </Form.Group>
@@ -57,59 +73,85 @@ function SprintsPage() {
                                         type="text"
                                         name="goal"
                                         value={newSprint.goal}
-                                        onChange={handleChange}
+                                        onChange={handleInputChange}
                                         required
                                     />
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <Form.Group controlId="sprintStartDate">
-                                    <Form.Label>Start Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="startDate"
-                                        value={newSprint.startDate}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group controlId="sprintEndDate">
-                                    <Form.Label>End Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="endDate"
-                                        value={newSprint.endDate}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Button variant="primary" type="submit">
-                            Add Sprint
-                        </Button>
+                        <Button variant="primary" type="submit">Add Sprint</Button>
                     </Form>
                 </Card.Body>
             </Card>
 
             {/* Sprint List */}
             <Row>
-                {sprints.map((sprint) => (
-                    <Col md={6} lg={4} key={sprint.id} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{sprint.name}</Card.Title>
-                                <Card.Text>{sprint.goal}</Card.Text>
-                                <p><strong>Start Date:</strong> {sprint.startDate}</p>
-                                <p><strong>End Date:</strong> {sprint.endDate}</p>
-                                <ProgressBar now={sprint.progress} label={`${sprint.progress}%`} />
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
+                {sprints.map((sprint) => {
+                    const sprintTasks = tasks.filter(task => task.sprintId === sprint.id);
+                    const progress = calculateProgress(sprint.id);
+
+                    return (
+                        <Col md={6} lg={4} key={sprint.id} className="mb-4">
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>{sprint.name}</Card.Title>
+                                    <p><strong>Goal:</strong> {sprint.goal}</p>
+                                    <ProgressBar now={progress} label={`${Math.round(progress)}%`} className="mb-3" />
+
+                                    <h6>Tasks in this Sprint</h6>
+                                    <ul>
+                                        {sprintTasks.length > 0 ? (
+                                            sprintTasks.map((task) => (
+                                                <li key={task.id}>{task.title} - {task.status}</li>
+                                            ))
+                                        ) : (
+                                            <li>No tasks assigned</li>
+                                        )}
+                                    </ul>
+
+                                    <Button variant="outline-primary" onClick={() => handleEditClick(sprint)} className="me-2">Edit</Button>
+                                    <Button variant="outline-danger" onClick={() => deleteSprint(sprint.id)}>Delete</Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    );
+                })}
             </Row>
+
+            {/* Edit Sprint Modal */}
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Sprint</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedSprint && (
+                        <Form>
+                            <Form.Group controlId="editSprintName">
+                                <Form.Label>Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="name"
+                                    value={selectedSprint.name}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="editSprintGoal" className="mt-2">
+                                <Form.Label>Goal</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="goal"
+                                    value={selectedSprint.goal}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                        </Form>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleSaveChanges}>Save Changes</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

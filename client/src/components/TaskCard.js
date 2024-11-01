@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, Button, Dropdown } from 'react-bootstrap';
 
-function TaskCard({ title, description, assignee, status, priority, onEdit, onDelete, onStatusChange }) {
+function TaskCard({ title, description, assignee, status, priority, sprintId, onEdit, onDelete, onStatusChange, onAssignSprint, sprints }) {
     return (
         <Card className="task-card mb-3">
             <Card.Body>
@@ -11,16 +11,22 @@ function TaskCard({ title, description, assignee, status, priority, onEdit, onDe
                 <p><strong>Assignee:</strong> {assignee}</p>
                 <p><strong>Status:</strong> {status}</p>
                 <p><strong>Priority:</strong> {priority}</p>
-                <Button variant="outline-primary" onClick={onEdit} className="me-2">Edit</Button>
-                <Button variant="outline-danger" onClick={onDelete}>Delete</Button>
-                <Dropdown className="mt-2">
-                    <Dropdown.Toggle variant="secondary">Change Status</Dropdown.Toggle>
+
+                <Dropdown onSelect={(sprintId) => onAssignSprint(Number(sprintId))} className="mt-2">
+                    <Dropdown.Toggle variant="secondary">
+                        {sprintId ? `Sprint ${sprintId}` : 'Assign to Sprint'}
+                    </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => onStatusChange('To Do')}>To Do</Dropdown.Item>
-                        <Dropdown.Item onClick={() => onStatusChange('In Progress')}>In Progress</Dropdown.Item>
-                        <Dropdown.Item onClick={() => onStatusChange('Completed')}>Completed</Dropdown.Item>
+                        {sprints.map((sprint) => (
+                            <Dropdown.Item key={sprint.id} eventKey={sprint.id}>
+                                {sprint.name}
+                            </Dropdown.Item>
+                        ))}
                     </Dropdown.Menu>
                 </Dropdown>
+
+                <Button variant="outline-primary" onClick={onEdit} className="me-2">Edit</Button>
+                <Button variant="outline-danger" onClick={onDelete}>Delete</Button>
             </Card.Body>
         </Card>
     );

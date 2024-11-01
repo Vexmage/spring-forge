@@ -6,7 +6,7 @@ export const TaskContext = createContext();
 
 // Create the provider component
 export const TaskProvider = ({ children }) => {
-    // Mock task data
+    // Mock task data with sprintId for linking tasks to sprints
     const mockTasks = [
         {
             id: 1,
@@ -15,6 +15,7 @@ export const TaskProvider = ({ children }) => {
             assignee: "Alice",
             status: "In Progress",
             priority: "High",
+            sprintId: 1,  // Linked to Sprint 1
         },
         {
             id: 2,
@@ -23,6 +24,7 @@ export const TaskProvider = ({ children }) => {
             assignee: "Bob",
             status: "To Do",
             priority: "Medium",
+            sprintId: 1,  // Linked to Sprint 1
         },
         {
             id: 3,
@@ -31,6 +33,7 @@ export const TaskProvider = ({ children }) => {
             assignee: "Charlie",
             status: "Completed",
             priority: "High",
+            sprintId: 2,  // Linked to Sprint 2
         },
         {
             id: 4,
@@ -39,10 +42,10 @@ export const TaskProvider = ({ children }) => {
             assignee: "Dana",
             status: "In Progress",
             priority: "Low",
+            sprintId: null,  // Not assigned to any sprint yet
         },
     ];
 
-    // Initialize tasks with mock data
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -56,7 +59,7 @@ export const TaskProvider = ({ children }) => {
         }, 500);
     };
 
-    // Add a new task (local only, not persisted)
+    // Add a new task
     const addTask = (newTask) => {
         const taskWithId = { id: tasks.length + 1, ...newTask };
         setTasks((prevTasks) => [...prevTasks, taskWithId]);
@@ -90,13 +93,18 @@ export const TaskProvider = ({ children }) => {
         updateTask(taskId, { status: newStatus });
     };
 
-    // Load mock tasks on initial render
+    // Assign a task to a sprint
+    const assignTaskToSprint = (taskId, sprintId) => {
+        updateTask(taskId, { sprintId });
+    };
+
     useEffect(() => {
         fetchTasks();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
-        <TaskContext.Provider value={{ tasks, loading, addTask, editTask, deleteTask, changeTaskStatus }}>
+        <TaskContext.Provider value={{ tasks, loading, addTask, editTask, deleteTask, changeTaskStatus, assignTaskToSprint }}>
             {children}
         </TaskContext.Provider>
     );
