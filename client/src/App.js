@@ -8,8 +8,6 @@ import TasksPage from './pages/TasksPage';
 import SprintsPage from './pages/SprintsPage';
 import MilestonesPage from './pages/MilestonesPage';
 import ProfilePage from './pages/ProfilePage';
-import Mascot from './components/Mascot';
-
 
 function App() {
   return (
@@ -27,7 +25,6 @@ function App() {
                           <Route path="/profile" element={<ProfilePage />} />
                       </Routes>
                   </div>
-                  
               </div>
           </div>
       </Router>

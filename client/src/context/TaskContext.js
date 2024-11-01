@@ -62,7 +62,7 @@ export const TaskProvider = ({ children }) => {
         setTasks((prevTasks) => [...prevTasks, taskWithId]);
     };
 
-    // Update a task’s status
+    // Update a task’s fields (full edit or partial update)
     const updateTask = (taskId, updatedFields) => {
         setTasks((prevTasks) =>
             prevTasks.map((task) =>
@@ -71,13 +71,32 @@ export const TaskProvider = ({ children }) => {
         );
     };
 
+    // Edit an entire task
+    const editTask = (updatedTask) => {
+        setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === updatedTask.id ? updatedTask : task
+            )
+        );
+    };
+
+    // Delete a task by ID
+    const deleteTask = (taskId) => {
+        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    };
+
+    // Change only the status of a task
+    const changeTaskStatus = (taskId, newStatus) => {
+        updateTask(taskId, { status: newStatus });
+    };
+
     // Load mock tasks on initial render
     useEffect(() => {
         fetchTasks();
     }, []);
 
     return (
-        <TaskContext.Provider value={{ tasks, loading, addTask, updateTask }}>
+        <TaskContext.Provider value={{ tasks, loading, addTask, editTask, deleteTask, changeTaskStatus }}>
             {children}
         </TaskContext.Provider>
     );

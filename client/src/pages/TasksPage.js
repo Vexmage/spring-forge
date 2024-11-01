@@ -2,10 +2,10 @@
 import React, { useContext, useState } from 'react';
 import { TaskContext } from '../context/TaskContext';
 import TaskCard from '../components/TaskCard';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 
 function TasksPage() {
-    const { tasks, loading, addTask } = useContext(TaskContext);
+    const { tasks, loading, addTask, editTask, deleteTask, changeTaskStatus } = useContext(TaskContext);
     const [newTask, setNewTask] = useState({
         title: '',
         description: '',
@@ -14,19 +14,45 @@ function TasksPage() {
         priority: 'Medium'
     });
 
-    // Handle input changes
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    // Handle input changes for new tasks
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNewTask((prevTask) => ({ ...prevTask, [name]: value }));
     };
 
-    // Handle form submission
+    // Handle form submission for new tasks
     const handleSubmit = (e) => {
         e.preventDefault();
         if (newTask.title.trim()) {
             addTask(newTask);
             setNewTask({ title: '', description: '', assignee: '', status: 'To Do', priority: 'Medium' });
         }
+    };
+
+    // Open edit modal and set the selected task
+    const handleEditClick = (task) => {
+        setSelectedTask(task);
+        setShowModal(true);
+    };
+
+    // Handle changes in the edit modal
+    const handleModalChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedTask({ ...selectedTask, [name]: value });
+    };
+
+    // Save edited task changes
+    const handleSaveChanges = () => {
+        editTask(selectedTask);
+        setShowModal(false);
+    };
+
+    // Change task status
+    const handleStatusChange = (taskId, newStatus) => {
+        changeTaskStatus(taskId, newStatus);
     };
 
     return (
@@ -118,16 +144,63 @@ function TasksPage() {
                     {tasks.map((task) => (
                         <Col md={6} lg={4} key={task.id} className="mb-4">
                             <TaskCard
-                                title={task.title}
-                                description={task.description}
-                                assignee={task.assignee}
-                                status={task.status}
-                                priority={task.priority}
+                                {...task}
+                                onEdit={() => handleEditClick(task)}
+                                onDelete={() => deleteTask(task.id)}
+                                onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
                             />
                         </Col>
                     ))}
                 </Row>
             )}
+
+            {/* Edit Task Modal */}
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Task</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedTask && (
+                        <Form>
+                            <Form.Group controlId="editTaskTitle">
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="title"
+                                    value={selectedTask.title}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="editTaskDescription" className="mt-2">
+                                <Form.Label>Description</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    name="description"
+                                    value={selectedTask.description}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="editTaskAssignee" className="mt-2">
+                                <Form.Label>Assignee</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="assignee"
+                                    value={selectedTask.assignee}
+                                    onChange={handleModalChange}
+                                />
+                            </Form.Group>
+                        </Form>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveChanges}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
